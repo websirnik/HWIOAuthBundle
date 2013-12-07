@@ -213,9 +213,11 @@ class ConnectController extends ContainerAware
                     $this->authenticateUser($request, $currentUser, $service, $currentToken->getRawToken(), false);
                 }
 
-                return $this->container->get('templating')->renderResponse('HWIOAuthBundle:Connect:connect_success.html.' . $this->getTemplatingEngine(), array(
-                    'userInformation' => $userInformation,
-                ));
+                return   $this->container->redirect($this->generateUrl('user_edit', array(
+                    'username'=>$currentUser->getUsername(), 
+                    'option'=> 'edit'
+                    ))
+                );
             }
         }
 
