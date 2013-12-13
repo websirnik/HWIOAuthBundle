@@ -213,8 +213,8 @@ class ConnectController extends ContainerAware
                     $this->authenticateUser($request, $currentUser, $service, $currentToken->getRawToken(), false);
                 }
 
-                return   $this->container->redirect($this->generateUrl('user_edit', array(
-                    'username'=>$currentUser->getUsername(), 
+                return new RedirectResponse($this->container->get('templating.helper.router')->generate('user_edit', array(
+                    'username'=>$currentUser->getUsername(),
                     'option'=> 'edit'
                     ))
                 );
