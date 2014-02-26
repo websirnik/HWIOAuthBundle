@@ -124,11 +124,7 @@ class ConnectController extends ContainerAware
             // Authenticate the user
             $this->authenticateUser($request, $form->getData(), $error->getResourceOwnerName(), $error->getRawToken());
 
-            return new RedirectResponse($this->container->get('templating.helper.router')->generate('user_edit', array(
-                      'username'=>$currentUser->getUsername(),
-                      'option'=> 'edit'
-                      ))
-                  );
+            return new RedirectResponse($request->getUri());
         }
 
         // reset the error in the session
