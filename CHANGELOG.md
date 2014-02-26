@@ -1,7 +1,25 @@
 Changelog
 =========
 
-## 0.3.1 (XXXX-XX-XX)
+## 0.3.3 (2014-02-17)
+* Fix: Incorrect redirect URL when no parameters are set,
+* Fix: Add missing parameter `prompt` for `GoogleResourceOwner`,
+* Fix: `WordpressResourceOwner` user details API call,
+* Fix: PHP Notice when `oauth_callback_confirmed` was set too `false`,
+* Fix: PHP Fatal when session returns boolean instead of object,
+* Fix: Add missing query parameters for `FacebookResourceOwner`
+
+## 0.3.2 (2014-02-07)
+* Fix: Prevent `SessionUnavailableException` when returns back from service,
+* Fix: `EntityUserProvider` should implement `UserProviderInterface`,
+* Fix: `createdAt` property was missing when serializing the `OAuthToken`,
+* Added Italian translations
+
+## 0.3.1 (2014-01-17)
+* Fix: Change Twitter API call to use SSL URL,
+* Fix: Problems with options in `VkontakteResourceOwner`,
+* Fix: Problems with OAuth 1.0a token & `YahooResourceOwner`,
+* Fix: Throw exception in `FOSUBUserProvider` when username is missing
 * Added SalesForce resource owner
 
 ## 0.3.0 (2013-09-28)
@@ -80,6 +98,10 @@ Changelog
 * Added Instagram resource owner
 * Added Odnoklassniki resource owner
 * Added Yandex resource owner
+
+## 0.2.10 (2013-12-09)
+* Fix: use `Symfony\Component\Security\Core\User\UserInterface` in `EntityUserProvider::refreshUser`
+* Fix: made `SessionStorage` compatible with Symfony 2.0
 
 ## 0.2.9 (2013-09-25)
 * Fix: Regression done in version `0.2.8` blocking usage without `FOSUserBundle`
