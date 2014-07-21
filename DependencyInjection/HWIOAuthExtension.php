@@ -47,6 +47,9 @@ class HWIOAuthExtension extends Extension
         $httpClient->addMethodCall('setTimeout', array($config['http_client']['timeout']));
         $httpClient->addMethodCall('setMaxRedirects', array($config['http_client']['max_redirects']));
         $httpClient->addMethodCall('setIgnoreErrors', array($config['http_client']['ignore_errors']));
+        if (isset($config['http_client']['proxy']) && $config['http_client']['proxy'] != '') {
+            $httpClient->addMethodCall('setProxy', array($config['http_client']['proxy']));
+        }
         $container->setDefinition('hwi_oauth.http_client', $httpClient);
 
         // set current firewall
@@ -54,6 +57,9 @@ class HWIOAuthExtension extends Extension
 
         // set target path parameter
         $container->setParameter('hwi_oauth.target_path_parameter', $config['target_path_parameter']);
+
+        // set use referer parameter
+        $container->setParameter('hwi_oauth.use_referer', $config['use_referer']);
 
         // setup services for all configured resource owners
         $resourceOwners = array();
@@ -134,7 +140,8 @@ class HWIOAuthExtension extends Extension
             $type = $options['type'];
             unset($options['type']);
 
-            $definition = new DefinitionDecorator('hwi_oauth.abstract_resource_owner.'.$type);
+            $definition = new DefinitionDecorator('hwi_oauth.abstract_resource_owner.'.Configuration::getResourceOwnerType($type));
+            $definition->setClass("%hwi_oauth.resource_owner.$type.class%");
             $container->setDefinition('hwi_oauth.resource_owner.'.$name, $definition);
             $definition
                 ->replaceArgument(2, $options)

@@ -1,6 +1,24 @@
 Changelog
 =========
 
+## 0.3.6 (2014-06-02)
+* Fix: `InstagramResourceOwner` regression while getting user details,
+* Fix: Add smooth migration for session (de)serialization
+
+## 0.3.5 (2014-05-30)
+* Fix: `LinkedinResourceOwner` regression while getting user details,
+* Fix: OAuth `revoke` functionality to be available wider,
+* Fix: Removed undocumented functionality from `SinaWeiboResourceOwner`,
+* Fix: Always remove default ports from URLs to match OAuth 1.0a, Spec: 9.1.2
+
+## 0.3.4 (2014-05-12)
+* Fix: Instagram OAuth redirect to one url,
+* Fix: `FOSUBUserProvider` should also implement `UserProviderInterface`,
+* Fix: `YahooResourceOwner` `infos_url` to use new format,
+* Fix: Send authorization via headers instead of URL parameter,
+* Fix: `GithubResourceOwner` revoke method,
+* Fix: Add login routing documentation note
+
 ## 0.3.3 (2014-02-17)
 * Fix: Incorrect redirect URL when no parameters are set,
 * Fix: Add missing parameter `prompt` for `GoogleResourceOwner`,

@@ -172,7 +172,7 @@ class ConnectController extends ContainerAware
         if ($resourceOwner->handles($request)) {
             $accessToken = $resourceOwner->getAccessToken(
                 $request,
-                $this->generate('hwi_oauth_connect_service', array('service' => $service), true)
+                $this->container->get('hwi_oauth.security.oauth_utils')->getServiceAuthUrl($request, $resourceOwner)
             );
 
             // save in session
@@ -235,21 +235,28 @@ class ConnectController extends ContainerAware
      */
     public function redirectToServiceAction(Request $request, $service)
     {
-        // Check for a specified target path and store it before redirect if present
-        $param = $this->container->getParameter('hwi_oauth.target_path_parameter');
+        $authorizationUrl = $this->container->get('hwi_oauth.security.oauth_utils')->getAuthorizationUrl($request, $service);
 
+        // Check for a return path and store it before redirect
         if ($request->hasSession()) {
             // initialize the session for preventing SessionUnavailableException
             $session = $request->getSession();
             $session->start();
 
+            $providerKey = $this->container->getParameter('hwi_oauth.firewall_name');
+            $sessionKey = '_security.' . $providerKey . '.target_path';
+
+            $param = $this->container->getParameter('hwi_oauth.target_path_parameter');
             if (!empty($param) && $targetUrl = $request->get($param, null, true)) {
-                $providerKey = $this->container->getParameter('hwi_oauth.firewall_name');
-                $request->getSession()->set('_security.' . $providerKey . '.target_path', $targetUrl);
+                $session->set($sessionKey, $targetUrl);
+            }
+
+            if ($this->container->getParameter('hwi_oauth.use_referer') && !$session->has($sessionKey) && ($targetUrl = $request->headers->get('Referer')) && $targetUrl !== $authorizationUrl) {
+                $session->set($sessionKey, $targetUrl);
             }
         }
 
-        return new RedirectResponse($this->container->get('hwi_oauth.security.oauth_utils')->getAuthorizationUrl($request, $service));
+        return new RedirectResponse($authorizationUrl);
     }
 
     /**

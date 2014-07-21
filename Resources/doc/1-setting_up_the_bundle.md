@@ -5,7 +5,7 @@ Step 1: Setting up the bundle
 ```yaml
 {
     "require": {
-        "hwi/oauth-bundle": "0.3.*@dev"
+        "hwi/oauth-bundle": "0.4.*@dev"
     }
 }
 ```
@@ -28,13 +28,17 @@ public function registerBundles()
 
 ### C) Import the routing
 
-Import the `redirect.xml` routing file in your own routing file.
+Import the `redirect.xml` and `login.xml` routing files in your own routing file.
 
 ```yaml
 # app/config/routing.yml
 hwi_oauth_redirect:
     resource: "@HWIOAuthBundle/Resources/config/routing/redirect.xml"
     prefix:   /connect
+
+hwi_oauth_login:
+    resource: "@HWIOAuthBundle/Resources/config/routing/login.xml"
+    prefix:   /login
 ```
 
 **Note:**

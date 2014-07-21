@@ -33,22 +33,22 @@ class OAuthUtils
     /**
      * @var boolean
      */
-    private $connect;
+    protected $connect;
 
     /**
      * @var HttpUtils
      */
-    private $httpUtils;
+    protected $httpUtils;
 
     /**
      * @var ResourceOwnerMap
      */
-    private $ownerMap;
+    protected $ownerMap;
 
     /**
      * @var SecurityContextInterface
      */
-    private $securityContext;
+    protected $securityContext;
 
     /**
      * @param HttpUtils                $httpUtils
@@ -90,16 +90,34 @@ class OAuthUtils
      */
     public function getAuthorizationUrl(Request $request, $name, $redirectUrl = null, array $extraParameters = array())
     {
+        $resourceOwner = $this->getResourceOwner($name);
         if (null === $redirectUrl) {
             if (!$this->connect || !$this->securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
                 $redirectUrl = $this->httpUtils->generateUri($request, $this->ownerMap->getResourceOwnerCheckPath($name));
             } else {
-                $request->attributes->set('service', $name);
-                $redirectUrl = $this->httpUtils->generateUri($request, 'hwi_oauth_connect_service');
+                $redirectUrl = $this->getServiceAuthUrl($request, $resourceOwner);
             }
         }
 
-        return $this->getResourceOwner($name)->getAuthorizationUrl($redirectUrl, $extraParameters);
+        return $resourceOwner->getAuthorizationUrl($redirectUrl, $extraParameters);
+    }
+
+    /**
+     * @param Request                $request
+     * @param ResourceOwnerInterface $resourceOwner
+     *
+     * @return string
+     */
+    public function getServiceAuthUrl(Request $request, ResourceOwnerInterface $resourceOwner)
+    {
+        if ($resourceOwner->getOption('auth_with_one_url')) {
+            $redirectUrl = $this->httpUtils->generateUri($request, $this->ownerMap->getResourceOwnerCheckPath($resourceOwner->getName())).'?authenticated=true';
+        } else {
+            $request->attributes->set('service', $resourceOwner->getName());
+            $redirectUrl = $this->httpUtils->generateUri($request, 'hwi_oauth_connect_service');
+        }
+
+        return $redirectUrl;
     }
 
     /**
@@ -154,9 +172,16 @@ class OAuthUtils
             $parameters += $queryParams;
         }
 
+        // Remove default ports
+        // Ref: Spec: 9.1.2
+        $explicitPort = isset($url['port']) ? $url['port'] : null;
+        if (('https' === $url['scheme'] && 443 === $explicitPort) || ('http' === $url['scheme'] && 80 === $explicitPort)) {
+            $explicitPort = null;
+        }
+
         // Remove query params from URL
         // Ref: Spec: 9.1.2
-        $url = sprintf('%s://%s%s', $url['scheme'], $url['host'], isset($url['path']) ? $url['path'] : '');
+        $url = sprintf('%s://%s%s%s', $url['scheme'], $url['host'], ($explicitPort ? ':'.$explicitPort : ''), isset($url['path']) ? $url['path'] : '');
 
         // Parameters are sorted by name, using lexicographical byte value ordering.
         // Ref: Spec: 9.1.1 (1)
@@ -213,7 +238,7 @@ class OAuthUtils
      *
      * @throws \RuntimeException
      */
-    private function getResourceOwner($name)
+    protected function getResourceOwner($name)
     {
         $resourceOwner = $this->ownerMap->getResourceOwnerByName($name);
         if (!$resourceOwner instanceof ResourceOwnerInterface) {
